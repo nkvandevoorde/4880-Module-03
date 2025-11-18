@@ -2,7 +2,7 @@
 clear; close all; clc; 
 
 %System
-d1 = 500;
+d1 = 800;
 Fl = 6;
 %d2 = (Fl*d1)/(d1-Fl);
 d2 = Fl;
@@ -53,6 +53,7 @@ pointNeg1Y = [-1, thetaY1;
               -1, thetaY2;];
 %-- 
 
+%Positions matrix
 point0 = [point0X'; point0Y']; %all rays for point (0,0)
 point1 = [point1X'; point1Y']; %all rays for point (1,1)
 pointNeg1 = [pointNeg1X'; pointNeg1Y']; %all rays for point (-1,-1)
@@ -102,8 +103,8 @@ M = Md2 * M_Lens * Md250; %propogation matrix
 M_padded250 = [M, zeros(2); zeros(2), M]; %zero padding to satisfy dimensions
 
 %Calculate the final positions for each distance matrix
-Ray_Final_700 = M_padded700 * PositionsMatrix
-Ray_Final_300 = M_padded300 * PositionsMatrix
+Ray_Final_700 = M_padded700 * PositionsMatrix;
+Ray_Final_300 = M_padded300 * PositionsMatrix;
 Ray_Final_250 = M_padded250 * PositionsMatrix
 
 %Combine all rays for blurred image
@@ -156,21 +157,21 @@ y_centers = (y_edges(1:end-1) + y_edges(2:end))/2;
 
 %Refocus for d1 = 250
 R = Ray_Final_250;
-x_sensor = R(1,:); 
-theta_x = R(2,:);
-y_sensor = R(3,:); 
-theta_y = R(4,:);
+x_sensor = R(1,:) 
+theta_x = R(2,:)
+y_sensor = R(3,:) 
+theta_y = R(4,:)
 
-% ack-project rays to object plane at d1 = 250
-x_ref_250 = x_sensor + theta_x * (250 - d2);
-y_ref_250 = y_sensor + theta_y * (250 - d2);
+%Back-project rays to object plane at d1 = 250
+x_ref_250 = x_sensor + theta_x * (d2);
+y_ref_250 = y_sensor + theta_y * (d2);
 
 %Bin rays to pixels
 ix = floor((x_ref_250 - x_min)/pixel_size) + 1;
 iy = floor((y_ref_250 - y_min)/pixel_size) + 1;
 valid = ix>=1 & ix<=length(x_centers) & iy>=1 & iy<=length(y_centers);
 ix = ix(valid); iy = iy(valid);
-ref_counts_250 = accumarray([ix(:) iy(:)], 1, [length(x_centers) length(y_centers)]);
+ref_counts_250 = accumarray([ix(:) iy(:)], 1, [length(x_centers) length(y_centers)])
 ref_image_250 = ref_counts_250';
 
 %Refocus for d1 = 300
@@ -180,8 +181,8 @@ theta_x = R(2,:);
 y_sensor = R(3,:); 
 theta_y = R(4,:);
 
-x_ref_300 = x_sensor + theta_x * (300 - d2);
-y_ref_300 = y_sensor + theta_y * (300 - d2);
+x_ref_300 = x_sensor + theta_x * (d2);
+y_ref_300 = y_sensor + theta_y * (d2);
 
 ix = floor((x_ref_300 - x_min)/pixel_size) + 1;
 iy = floor((y_ref_300 - y_min)/pixel_size) + 1;
@@ -197,8 +198,8 @@ theta_x = R(2,:);
 y_sensor = R(3,:); 
 theta_y = R(4,:);
 
-x_ref_700 = x_sensor + theta_x * (700 - d2);
-y_ref_700 = y_sensor + theta_y * (700 - d2);
+x_ref_700 = x_sensor + theta_x * (d2);
+y_ref_700 = y_sensor + theta_y * (d2);
 
 ix = floor((x_ref_700 - x_min)/pixel_size) + 1;
 iy = floor((y_ref_700 - y_min)/pixel_size) + 1;
