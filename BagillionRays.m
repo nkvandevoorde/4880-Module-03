@@ -6,50 +6,73 @@ d1 = 800;
 Fl = 6;
 %d2 = (Fl*d1)/(d1-Fl);
 d2 = Fl;
-thetaX0 = deg2rad(linspace(0,180,90));
-thetaY0 = deg2rad(linspace(0,180,90));
-thetaX1 = deg2rad(linspace(0,180,90));
-thetaY1 = deg2rad(linspace(0,180,90));
-thetaX2 = deg2rad(linspace(0,180,90));
-thetaY2 = deg2rad(linspace(0,180,90));
+thetas = deg2rad(linspace(0,180,1000));
+zeroPoints = zeros(1,1000);
+onePoints = ones(1,1000);
+twoPoints = 2*ones(1,1000);
+NegOnePoints = -1*ones(1,1000);
+NegTwoPoints = -2*ones(1,1000);
+%thetaX0 = deg2rad(linspace(0,180,400));
+%thetaY0 = deg2rad(linspace(0,180,400));
+%thetaX1 = deg2rad(linspace(0,180,400));
+%thetaY1 = deg2rad(linspace(0,180,400));
+%thetaX2 = deg2rad(linspace(0,180,400));
+%thetaY2 = deg2rad(linspace(0,180,400));
 
 %Holy Matricies
 %--
 %(x, y) = (0,0) while theta changes -- simulates cone on rays
 %Object 0's x and thetaX
-point0X = [zeros(1,90);
-            thetaX0];
+point0X = [zeroPoints;
+            thetas];
 %Object 0's y and thetaY
-point0Y = [zeros(1,90);
-            thetaY0];
+point0Y = [zeroPoints;
+            thetas];
 %--
 
 %--
 %(x, y) = (1,1) while theta changes -- simulates cone on rays
 %Object 1's x and thetaX
-point1X = [ones(1,90);
-            thetaX1];
+point1X = [onePoints;
+            thetas];
 %Object 1's y and thetaY
-point1Y = [ones(1,90);
-            thetaY1];
+point1Y = [onePoints;
+            thetas];
 %--
+%Object 2
+point2X = [twoPoints;
+            thetas];
+
+point2Y = [twoPoints;
+            thetas];
+
 
 %--
 %(x, y) = (-1,-1) while theta changes -- simulates cone on rays
 %Object -1's x and thetaX
-pointNeg1X = [-1*ones(1,90);
-            thetaX2];
+pointNeg1X = [NegOnePoints;
+            thetas];
 
 %Object -1's y and thetaY
-pointNeg1Y = [-1*ones(1,90);
-            thetaY2];
+pointNeg1Y = [NegOnePoints;
+            thetas];
 %-- 
+
+%Object -2
+%--
+pointNeg2X = [NegTwoPoints;
+            thetas];
+
+pointNeg2Y = [NegTwoPoints;
+            thetas];
 
 %Positions matrix
 point0 = [point0X; point0Y]; %all rays for point (0,0)
 point1 = [point1X; point1Y]; %all rays for point (1,1)
+point2 = [point2X; point2Y]; %all rays (2,2)
 pointNeg1 = [pointNeg1X; pointNeg1Y]; %all rays for point (-1,-1)
-PositionsMatrix = [point0, point1, pointNeg1]; %All rays for all points
+pointNeg2 = [pointNeg2X; pointNeg2Y]; %all ray for (-2,-2)
+PositionsMatrix = [point2, point1, point0, pointNeg1, pointNeg2]; %All rays for all points
 
 %Propogation Matrix 
 Md1 = [1, d1; 0, 1]; %obj -> lens
@@ -107,11 +130,13 @@ x_sensor = R_blur(1,:); % x position on sensor
 y_sensor = R_blur(3,:); % y position on sensor
 
 %Define sensor grid
-pixel_size = 0.05;
-sensor_half_width = 10;
-sensor_half_height = 10;
-x_min = -sensor_half_width; x_max = sensor_half_width;
-y_min = -sensor_half_height; y_max = sensor_half_height;
+pixel_size = 3.45e-6;
+sensor_half_width = 540 * pixel_size; %1080/2
+sensor_half_height = 720 * pixel_size; %1440/2
+x_min = -sensor_half_width; 
+x_max = sensor_half_width;
+y_min = -sensor_half_height;
+y_max = sensor_half_height;
 
 x_edges = x_min:pixel_size:x_max;
 y_edges = y_min:pixel_size:y_max;
@@ -125,6 +150,8 @@ valid = ix>=1 & ix<=length(x_centers) & iy>=1 & iy<=length(y_centers);
 ix = ix(valid); iy = iy(valid);
 sensor_counts = accumarray([ix(:) iy(:)],1,[length(x_centers) length(y_centers)]);
 sensor_image = sensor_counts';
+histogram2(x_sensor, y_sensor, x_edges, y_edges);
+histogram2(x_sensor, y_sensor, x_centers, y_centers);
 
 %Plot blurred image
 figure;
@@ -137,9 +164,9 @@ colorbar;
 d2 = Fl;  %distance from lens to sensor
 
 %Sensor grid for plotting
-pixel_size = 0.05;
-sensor_half_width = 10;
-sensor_half_height = 10;
+pixel_size = 3.45e-6;
+sensor_half_width = 1080 * pixel_size;
+sensor_half_height = 1440 * pixel_size;
 x_min = -sensor_half_width; x_max = sensor_half_width;
 y_min = -sensor_half_height; y_max = sensor_half_height;
 x_edges = x_min:pixel_size:x_max;
@@ -165,6 +192,8 @@ valid = ix>=1 & ix<=length(x_centers) & iy>=1 & iy<=length(y_centers);
 ix = ix(valid); iy = iy(valid);
 ref_counts_250 = accumarray([ix(:) iy(:)], 1, [length(x_centers) length(y_centers)]);
 ref_image_250 = ref_counts_250';
+%histogram2(x_sensor, y_sensor, )
+%histogram2(x_sensor, y_sensor, x_centers, y_centers)
 
 %Refocus for d1 = 300
 R = Ray_Final_300;
